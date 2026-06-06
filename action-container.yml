@@ -1,0 +1,61 @@
+name: CodeScribe PR Intelligence Container
+description: Container-based CodeScribe action with dependencies prebaked.
+inputs:
+  post-comment:
+    description: Upsert a sticky CodeScribe summary comment on the pull request.
+    required: false
+    default: "false"
+  post-review:
+    description: Publish a real GitHub pull request review.
+    required: false
+    default: "false"
+  auto-approve:
+    description: Allow CodeScribe to publish APPROVE reviews.
+    required: false
+    default: "false"
+  fail-on-risk:
+    description: Fail the workflow when risk exceeds risk-threshold.
+    required: false
+    default: "false"
+  risk-threshold:
+    description: Risk threshold used when fail-on-risk is enabled.
+    required: false
+    default: "70"
+  llm-provider:
+    description: LLM provider to use.
+    required: false
+    default: auto
+  model:
+    description: Optional provider model override.
+    required: false
+    default: ""
+  llm-api-key:
+    description: Optional API key for Gemini or OpenAI-compatible providers.
+    required: false
+    default: ""
+  llm-api-base-url:
+    description: Optional OpenAI-compatible chat completions base URL.
+    required: false
+    default: ""
+  include:
+    description: Comma-separated glob patterns to include.
+    required: false
+    default: ""
+  exclude:
+    description: Comma-separated glob patterns to exclude.
+    required: false
+    default: ""
+  config-file:
+    description: Path to the per-repository CodeScribe config file.
+    required: false
+    default: .codescribe.yml
+  output-dir:
+    description: Directory where CodeScribe reports are written.
+    required: false
+    default: codescribe-reports
+branding:
+  icon: git-pull-request
+  color: blue
+runs:
+  using: docker
+  image: docker://ghcr.io/lokesh-venkatesh-21/codescribe:v1

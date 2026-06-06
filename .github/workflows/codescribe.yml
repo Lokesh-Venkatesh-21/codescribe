@@ -14,7 +14,7 @@ jobs:
     env:
       CODESCRIBE_MODE: github_action
       POST_PR_COMMENT: "false"
-      LLM_PROVIDER: local_fallback
+      LLM_PROVIDER: auto
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4

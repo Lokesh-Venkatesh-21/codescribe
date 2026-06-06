@@ -2,13 +2,60 @@ name: CodeScribe PR Intelligence
 description: Generate CodeScribe documentation, risk, security, and review reports for a pull request.
 inputs:
   post-comment:
-    description: Post the PR summary comment back to GitHub.
+    description: Upsert a sticky CodeScribe summary comment on the pull request.
     required: false
     default: "false"
+  post-review:
+    description: Publish a real GitHub pull request review.
+    required: false
+    default: "false"
+  auto-approve:
+    description: Allow CodeScribe to publish APPROVE reviews. When false, APPROVE is downgraded to COMMENT.
+    required: false
+    default: "false"
+  fail-on-risk:
+    description: Fail the workflow when the computed risk score exceeds risk-threshold.
+    required: false
+    default: "false"
+  risk-threshold:
+    description: Risk threshold used when fail-on-risk is enabled.
+    required: false
+    default: "70"
+  llm-provider:
+    description: "LLM provider to use: auto, ollama, gemini, generic_api, local_model, or local_fallback."
+    required: false
+    default: auto
+  model:
+    description: Optional provider model override.
+    required: false
+    default: ""
+  llm-api-key:
+    description: Optional API key for Gemini or OpenAI-compatible providers.
+    required: false
+    default: ""
+  llm-api-base-url:
+    description: Optional OpenAI-compatible chat completions base URL.
+    required: false
+    default: ""
+  include:
+    description: Comma-separated glob patterns to include.
+    required: false
+    default: ""
+  exclude:
+    description: Comma-separated glob patterns to exclude.
+    required: false
+    default: ""
+  config-file:
+    description: Path to the per-repository CodeScribe config file.
+    required: false
+    default: .codescribe.yml
   output-dir:
     description: Directory where CodeScribe reports are written.
     required: false
     default: codescribe-reports
+branding:
+  icon: git-pull-request
+  color: blue
 runs:
   using: composite
   steps:
@@ -28,7 +75,12 @@ runs:
       env:
         CODESCRIBE_MODE: github_action
         POST_PR_COMMENT: ${{ inputs.post-comment }}
-        LLM_PROVIDER: local_fallback
+        AUTO_POST_REVIEWS: ${{ inputs.post-review }}
+        GITHUB_TOKEN: ${{ github.token }}
+        LLM_PROVIDER: ${{ inputs.llm-provider }}
+        GEMINI_API_KEY: ${{ inputs.llm-api-key }}
+        GENERIC_LLM_API_KEY: ${{ inputs.llm-api-key }}
+        GENERIC_LLM_API_BASE_URL: ${{ inputs.llm-api-base-url }}
       run: |
         codescribe analyze-pr \
           --repo "${{ github.repository }}" \
@@ -36,4 +88,13 @@ runs:
           --base-ref "${{ github.event.pull_request.base.sha }}" \
           --head-ref "${{ github.event.pull_request.head.sha }}" \
           --output-dir "${{ inputs.output-dir }}" \
-          --post-comment "${{ inputs.post-comment }}"
+          --post-comment "${{ inputs.post-comment }}" \
+          --post-review "${{ inputs.post-review }}" \
+          --auto-approve "${{ inputs.auto-approve }}" \
+          --fail-on-risk "${{ inputs.fail-on-risk }}" \
+          --risk-threshold "${{ inputs.risk-threshold }}" \
+          --llm-provider "${{ inputs.llm-provider }}" \
+          --model "${{ inputs.model }}" \
+          --include "${{ inputs.include }}" \
+          --exclude "${{ inputs.exclude }}" \
+          --config-file "${{ inputs.config-file }}"
