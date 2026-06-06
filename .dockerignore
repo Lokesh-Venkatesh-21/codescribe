@@ -1,0 +1,14 @@
+.env
+.git
+.pytest_cache
+.ruff_cache
+.venv
+__pycache__
+*.pyc
+*.db
+codescribe.egg-info
+dist
+build
+outputs
+work
+logs

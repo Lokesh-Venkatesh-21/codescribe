@@ -1,0 +1,55 @@
+name: CodeScribe PR Analysis
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    env:
+      CODESCRIBE_MODE: github_action
+      POST_PR_COMMENT: "false"
+      LLM_PROVIDER: local_fallback
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install CodeScribe
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Detect Ollama
+        run: |
+          if curl -fsS http://localhost:11434/api/tags >/dev/null 2>&1; then
+            echo "LLM_PROVIDER=ollama" >> "$GITHUB_ENV"
+          else
+            echo "LLM_PROVIDER=local_fallback" >> "$GITHUB_ENV"
+          fi
+
+      - name: Run CodeScribe analysis
+        run: |
+          codescribe analyze-pr \
+            --repo "${{ github.repository }}" \
+            --pr-number "${{ github.event.pull_request.number }}" \
+            --base-ref "${{ github.event.pull_request.base.sha }}" \
+            --head-ref "${{ github.event.pull_request.head.sha }}" \
+            --output-dir codescribe-reports \
+            --post-comment "${POST_PR_COMMENT}"
+
+      - name: Upload CodeScribe reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: codescribe-reports
+          path: codescribe-reports

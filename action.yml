@@ -1,0 +1,39 @@
+name: CodeScribe PR Intelligence
+description: Generate CodeScribe documentation, risk, security, and review reports for a pull request.
+inputs:
+  post-comment:
+    description: Post the PR summary comment back to GitHub.
+    required: false
+    default: "false"
+  output-dir:
+    description: Directory where CodeScribe reports are written.
+    required: false
+    default: codescribe-reports
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install CodeScribe
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -e "$GITHUB_ACTION_PATH[dev]"
+
+    - name: Run CodeScribe
+      shell: bash
+      env:
+        CODESCRIBE_MODE: github_action
+        POST_PR_COMMENT: ${{ inputs.post-comment }}
+        LLM_PROVIDER: local_fallback
+      run: |
+        codescribe analyze-pr \
+          --repo "${{ github.repository }}" \
+          --pr-number "${{ github.event.pull_request.number }}" \
+          --base-ref "${{ github.event.pull_request.base.sha }}" \
+          --head-ref "${{ github.event.pull_request.head.sha }}" \
+          --output-dir "${{ inputs.output-dir }}" \
+          --post-comment "${{ inputs.post-comment }}"
