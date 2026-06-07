@@ -1,4 +1,4 @@
-.PHONY: install dev test lint format docker-up docker-down
+.PHONY: install dev test lint format
 
 install:
 	python -m pip install --upgrade pip
@@ -16,9 +16,3 @@ lint:
 format:
 	ruff format .
 	ruff check . --fix
-
-docker-up:
-	docker compose up --build
-
-docker-down:
-	docker compose down

@@ -1,5 +1,5 @@
-name: CodeScribe PR Intelligence
-description: Generate CodeScribe documentation, risk, security, and review reports for a pull request.
+name: CodeScribe AI PR Reviewer
+description: Generate PR summaries, risk scores, inline review comments, and audit documentation.
 inputs:
   post-comment:
     description: Upsert a sticky CodeScribe summary comment on the pull request.

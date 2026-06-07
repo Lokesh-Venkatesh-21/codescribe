@@ -1,6 +1,5 @@
 from functools import lru_cache
 
-from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -9,12 +8,11 @@ class Settings(BaseSettings):
     app_env: str = "local"
     log_level: str = "INFO"
     api_prefix: str = "/api/v1"
-    codescribe_mode: str = "webhook_server"
+    codescribe_mode: str = "github_action"
 
     database_url: str = "sqlite+aiosqlite:///./codescribe.db"
     redis_url: str = "redis://localhost:6379/0"
 
-    github_webhook_secret: str = Field(default="dev-secret")
     github_api_base_url: str = "https://api.github.com"
     github_app_id: str | None = None
     github_app_private_key: str | None = None

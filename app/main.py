@@ -10,7 +10,6 @@ from app.api.routes import (
     pr_intelligence,
     pull_requests,
     review_feedback,
-    webhooks,
 )
 from app.core.config import get_settings
 from app.core.logging import configure_logging
@@ -32,12 +31,11 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     version="0.1.0",
-    description="AI documentation generation and PR summary platform.",
+    description="GitHub Actions-first AI pull request reviewer.",
     lifespan=lifespan,
 )
 
 app.include_router(health.router)
-app.include_router(webhooks.router, prefix=settings.api_prefix)
 app.include_router(pull_requests.router, prefix=settings.api_prefix)
 app.include_router(approvals.router, prefix=settings.api_prefix)
 app.include_router(artifacts.router, prefix=settings.api_prefix)

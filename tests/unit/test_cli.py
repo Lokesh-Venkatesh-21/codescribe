@@ -35,7 +35,7 @@ index 111..222 100644
 
 
 @pytest.mark.asyncio
-async def test_generate_reports_without_webhook_server(tmp_path) -> None:
+async def test_generate_reports_from_action_pipeline(tmp_path) -> None:
     changed_files = [
         {
             "filename": "app/service.py",

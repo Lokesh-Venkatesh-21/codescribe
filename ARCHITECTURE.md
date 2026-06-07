@@ -1,35 +1,46 @@
 # CodeScribe Architecture
 
-CodeScribe is organized around small, testable service modules.
+CodeScribe is now GitHub Actions-first. A repository pull request triggers a workflow, the workflow
+checks out the PR branch, and the CodeScribe CLI runs the analysis pipeline directly inside the
+runner.
 
-## Runtime Modes
+The production workflow runs entirely inside GitHub Actions.
 
-- Webhook server mode: FastAPI receives GitHub pull request webhooks.
-- GitHub Actions mode: the `codescribe analyze-pr` CLI reads a checked-out repository diff.
+## Runtime Entry Point
+
+- GitHub event: `pull_request` with `opened`, `synchronize`, or `reopened`.
+- Workflow: `.github/workflows/codescribe.yml` in the adopting repository.
+- Action: `Lokesh-Venkatesh-21/codescribe@v1`.
+- CLI: `codescribe analyze-pr`.
 
 ## Main Components
 
-- `app/api/routes`: FastAPI endpoints.
-- `app/services/github.py`: GitHub API adapter with retries and timeouts.
-- `app/services/llm_providers.py`: Ollama, Gemini, and deterministic fallback providers.
-- `app/services/generators.py`: documentation generation.
-- `app/services/pr_intelligence.py`: classification, risk, security, dependency, and quality analysis.
-- `app/services/review_agent.py`: AI review decision and inline comment generation.
-- `app/services/feedback_evaluation.py`: human feedback metrics and dataset export.
-- `app/workflows/documentation_graph.py`: end-to-end PR processing workflow.
-- `app/cli.py`: serverless GitHub Actions analysis path.
+- `app/cli.py`: reads the git diff, applies include/exclude filters, invokes the pipeline, and
+  publishes enabled PR outputs.
+- `app/services/ast_analysis.py`: detects language and extracts symbols.
+- `app/services/pr_intelligence.py`: classifies change type, scores risk, scans security patterns,
+  and creates quality metrics.
+- `app/services/llm_providers.py`: selects Ollama, generic API, local model, or deterministic
+  fallback.
+- `app/services/review_agent.py`: generates review decision and inline comments.
+- `app/services/branch_documentation.py`: applies comment-only annotations and updates
+  `documentation.md`.
+- `app/services/github.py`: posts sticky PR comments and optional GitHub reviews.
+- `app/workflows/documentation_graph.py`: reusable workflow implementation for persisted/local
+  processing paths.
 
-## Data Storage
+## Diagrams
 
-PostgreSQL stores PR metadata, changed files, generated artifacts, validation results, review
-comments, feedback, and metrics. Local development defaults to SQLite when `DATABASE_URL` is not
-provided.
+- [High-Level Architecture](docs/diagrams/high-level-architecture.md)
+- [PR Processing Flow](docs/diagrams/pr-processing-flow.md)
+- [LangGraph Agent Workflow](docs/diagrams/langgraph-agent-workflow.md)
+- [Deployment Architecture](docs/diagrams/deployment-architecture.md)
+- [LLM Provider Fallback Chain](docs/diagrams/llm-provider-fallback-chain.md)
 
 ## Security Posture
 
-- Webhook signatures are checked outside local/test environments.
-- Secrets are loaded from environment variables.
-- GitHub comment publishing is opt-in.
-- Automatic review posting is disabled by default.
-- LLM failures fall back gracefully without dropping PR state.
-
+- GitHub publishing is opt-in.
+- Automatic approval is disabled by default.
+- Generated report artifacts are disabled by default.
+- Secrets are read from GitHub Actions secrets or environment variables.
+- LLM provider selection falls back safely without sending code to an unexpected provider.

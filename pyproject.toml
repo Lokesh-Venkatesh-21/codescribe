@@ -1,7 +1,7 @@
 [project]
 name = "codescribe"
 version = "0.1.0"
-description = "Production-grade AI documentation and PR summary platform."
+description = "Local-first AI pull request reviewer for GitHub summaries, comments, risk scoring, and audit documentation."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

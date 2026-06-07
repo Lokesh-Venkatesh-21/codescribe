@@ -10,12 +10,13 @@ def test_codescribe_workflow_yaml_loads() -> None:
     assert workflow["name"] == "CodeScribe PR Analysis"
     assert "pull_request" in triggers
     assert workflow["permissions"]["pull-requests"] == "write"
+    assert "actions/upload-artifact" not in Path(".github/workflows/codescribe.yml").read_text()
 
 
 def test_reusable_action_yaml_loads() -> None:
     action = yaml.safe_load(Path("action.yml").read_text())
 
-    assert action["name"] == "CodeScribe PR Intelligence"
+    assert action["name"] == "CodeScribe AI PR Reviewer"
     assert action["runs"]["using"] == "composite"
     assert action["inputs"]["post-review"]["default"] == "false"
     assert action["inputs"]["llm-provider"]["default"] == "auto"
@@ -31,6 +32,7 @@ def test_reusable_action_yaml_loads() -> None:
 def test_container_action_yaml_loads() -> None:
     action = yaml.safe_load(Path("action-container.yml").read_text())
 
+    assert action["name"] == "CodeScribe AI PR Reviewer Container"
     assert action["runs"]["using"] == "docker"
     assert action["runs"]["image"].endswith(":v1")
     assert action["inputs"]["config-file"]["default"] == ".codescribe.yml"

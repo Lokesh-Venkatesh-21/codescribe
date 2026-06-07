@@ -1,47 +1,25 @@
-# Step-by-Step Implementation Plan
+# Implementation Plan
 
-## Phase 1: Foundations
+## Current Architecture
 
-1. Configure FastAPI, settings, logging, Docker, CI, and local development.
-2. Add PostgreSQL schema for pull requests, files, artifacts, validations, approvals, feedback, and metrics.
-3. Add GitHub webhook verification and manual processing endpoint.
+CodeScribe is implemented as a GitHub Actions-first PR reviewer. The workflow starts from
+`pull_request` events and invokes `codescribe analyze-pr` directly inside the runner.
 
-## Phase 2: Analysis
+## Completed Foundation
 
-1. Implement robust language detection.
-2. Add Python AST parser.
-3. Replace lightweight Go, Java, and TypeScript pattern parsing with tree-sitter parsers.
-4. Persist parsed symbol metadata for auditability.
+1. Reusable composite action in `action.yml`.
+2. CLI pipeline in `app/cli.py`.
+3. AST and pattern parsers for changed code.
+4. PR intelligence engine for classification, risk, security, and quality.
+5. LLM provider abstraction with local-first fallback behavior.
+6. Review agent and GitHub publishing adapter.
+7. Branch documentation support for comment-only annotations and `documentation.md`.
 
-## Phase 3: Generation
+## Next Improvements
 
-1. Add Gemini prompt templates for function docs, class docs, module summaries, PR summaries, and release notes.
-2. Add retries, request tracing, token budgeting, and prompt versioning.
-3. Store model, prompt version, generated content, and source context hash.
-
-## Phase 4: Validation and Evaluation
-
-1. Enforce AST coverage gates for documented symbols.
-2. Score completeness, specificity, structure, and hallucination risk.
-3. Add LLM self-review with strict JSON output.
-4. Record quality metrics and reviewer feedback.
-
-## Phase 5: Human Review
-
-1. Add approval queue endpoints and reviewer decisions.
-2. Add change-request loops that regenerate docs with reviewer comments.
-3. Add optional React UI for artifact review.
-
-## Phase 6: Publishing
-
-1. Publish approved PR summaries as GitHub comments.
-2. Publish module documentation to a docs repo or internal portal.
-3. Add release note aggregation.
-
-## Phase 7: Production Hardening
-
-1. Move background work to Redis-backed workers.
-2. Add LangGraph checkpoints and human interrupts.
-3. Add auth, RBAC, rate limits, and audit logs.
-4. Add observability dashboards for latency, failures, approval time, and quality scores.
-
+1. Improve changed-symbol precision from diff line ranges.
+2. Add tree-sitter parsers for Go, Java, and TypeScript.
+3. Add SARIF export for security findings.
+4. Add GitHub App authentication for organization-wide installation.
+5. Add stronger release automation for Marketplace publishing.
+6. Add more historical PR evaluation fixtures.

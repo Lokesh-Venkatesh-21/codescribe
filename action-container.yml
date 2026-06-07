@@ -1,5 +1,5 @@
-name: CodeScribe PR Intelligence Container
-description: Container-based CodeScribe action with dependencies prebaked.
+name: CodeScribe AI PR Reviewer Container
+description: Container-based CodeScribe action for PR summaries, review comments, and audit documentation.
 inputs:
   post-comment:
     description: Upsert a sticky CodeScribe summary comment on the pull request.
